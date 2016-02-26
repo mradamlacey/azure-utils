@@ -1,0 +1,20 @@
+{
+  "name": "azure-utils",
+  "version": "1.0.0",
+  "description": "Utilities for working with Microsoft Azure, uses the Azure SDK for Node",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adam Lacey",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "argv": "0.0.2",
+    "azure-storage": "^0.8.0",
+    "colors": "^1.0.3",
+    "lodash": "^3.5.0",
+    "nconf": "^0.7.1",
+    "stream-buffers": "^3.0.0",
+    "yargs": "^3.5.4"
+  }
+}

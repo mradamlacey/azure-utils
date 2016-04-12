@@ -40,8 +40,8 @@ var argv = yargs.usage('Usage: $0 -f [file] -n [lines] -c [connectionString] -a 
      .alias('n', 'lines')
      .describe('n', 'Output the first N lines of the file')
      .default('n', 10)
-     .alias('c', 'connectionString')
-     .describe('c', 'Connection string to the Azure storage account, can be retrieved from the Azure portal')
+    // .alias('c', 'connectionString')
+     //.describe('c', 'Connection string to the Azure storage account, can be retrieved from the Azure portal')
      .alias('a', 'accountName')
      .describe('a', 'Azure storage account name, required if \'connectionString\' is not provided')
      .alias('k', 'key')
@@ -61,22 +61,31 @@ if(argv.lines){
     linesToRead = parseInt(argv.lines)
 }
 
+/*
 if(argv.connectionString){
-    process.env['AZURE_STORAGE_CONNECTION_STRING'] = argv.connectionString;  
+    process.env['AZURE_STORAGE_CONNECTION_STRING'] = '"' + argv.connectionString + '"';  
 }
+
 if(argv.accountName && argv.key){
     process.env['AZURE_STORAGE_ACCOUNT'] = argv.accoutName;
+    //process.env['AZURE_STORAGE_ACCESS_KEY'] = new Buffer(argv.key).toString('base64');
     process.env['AZURE_STORAGE_ACCESS_KEY'] = argv.key;
 }
-if(argv.accountName && argv.key == null){
+*/
+if(argv.accountName == null){
+    throw new Error('Must provide -a or --account option to provide storage account name');
+}
+if(argv.key == null){
     throw new Error('Must provide -k or --key option to provide key value for storage account');
 }
 
+/*
 if(argv.connectionString == null && argv.accountName == null){   
     throw new Error('Must provide either --connectionString or --accountName');
 }
+*/
 
-var blobService = azure.createBlobService();
+var blobService = azure.createBlobService(argv.accountName, argv.key);
     
 if(argv.file){
         
@@ -103,8 +112,9 @@ if(argv.file){
     //console.info('Container name: ' + containerName);
    // console.info('Blob name: ' + blobName);
 
-    var blobProperties = blobService.getBlobProperties(containerName, blobName, null, function (error, blob) {
+    var blobProperties = blobService.getBlobProperties(containerName, blobName, null, function (error, blob, response) {
         if (error) {
+            console.log(colors.red(util.inspect(response)));
             throw error;
         }
         else {
@@ -146,8 +156,9 @@ function getChunkAndPrint(fullPath, blobSize, containerName, blobName, readLines
     //console.log(colors.gray('Downloading ' + (endPos - startPos) + ' bytes starting from ' + startPos + ' marker.'));
     
     blobService.getBlobToStream(containerName, blobName, myWritableStreamBuffer, 
-        { 'rangeStart': startPos, 'rangeEnd': endPos - 1 }, function(error) {
+        { 'rangeStart': startPos, 'rangeEnd': endPos - 1 }, function(error, blob, response) {
         if (error) {
+            console.log(colors.red(util.inspect(response)));
             throw error;
         }
         else if (!error) {
